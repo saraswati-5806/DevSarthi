@@ -108,6 +108,8 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: var(--shadow-md);
+  min-width:fit-content;
+  white-space:nowrap;
 }
 
 .btn-success:hover {
@@ -131,6 +133,16 @@ body {
   border-color: var(--brand-blue);
   color: var(--brand-blue);
   box-shadow: var(--shadow-md);
+}
+/* Ensure responsive behavior */
+@media (max-width: 768px) {
+  .btn-success span {
+    display: none;
+  }
+  .btn-success {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 /* Sidebar - Dark Anchor */

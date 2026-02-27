@@ -1,212 +1,207 @@
+// components/panels/CodeEditor.jsx
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { Play, Copy, RotateCcw, Download, ChevronDown } from 'lucide-react'
 import dynamic from 'next/dynamic'
-import { Play, Download, Settings, Code, RotateCcw, Copy } from 'lucide-react'
-import { languageTemplates, mockCodeExecutionResults } from '@/Lib/mockData'
 
-const Editor = dynamic(() => import('@monaco-editor/react'), {
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center h-full">
-      <div style={{color: 'var(--brand-blue)'}}>Loading editor...</div>
-    </div>
-  )
-})
+const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false })
+
+const languages = [
+  { id: 'python', name: 'Python', template: '# Start coding here\nprint("Hello DevSarthi")' },
+  { id: 'javascript', name: 'JavaScript', template: '// Start coding here\nconsole.log("Hello DevSarthi");' },
+  { id: 'java', name: 'Java', template: '// Start coding here\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello DevSarthi");\n    }\n}' },
+  { id: 'cpp', name: 'C++', template: '// Start coding here\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello DevSarthi" << endl;\n    return 0;\n}' },
+  { id: 'c', name: 'C', template: '// Start coding here\n#include <stdio.h>\n\nint main() {\n    printf("Hello DevSarthi\\n");\n    return 0;\n}' }
+]
+
+const themes = [
+  { id: 'vs-dark', name: 'Dark' },
+  { id: 'light', name: 'Light' },
+  { id: 'hc-black', name: 'High Contrast' }
+]
 
 export default function CodeEditor() {
-  const [code, setCode] = useState(languageTemplates.python.starter)
-  const [language, setLanguage] = useState('python')
+  const [language, setLanguage] = useState(languages[0])
+  const [theme, setTheme] = useState(themes[0])
+  const [code, setCode] = useState(languages[0].template)
   const [output, setOutput] = useState('')
   const [showTerminal, setShowTerminal] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
-  const [theme, setTheme] = useState('vs-light')
+  const editorRef = useRef(null)
 
-  const handleRun = () => {
-    setShowTerminal(true)
-    setIsRunning(true)
-    setOutput('Running...')
-    
-    setTimeout(() => {
-      setIsRunning(false)
-      if (code.includes('print') || code.includes('console.log') || code.includes('System.out')) {
-        setOutput(mockCodeExecutionResults[language]?.success || 'Code executed successfully!')
-      } else {
-        setOutput(mockCodeExecutionResults[language]?.error || 'Syntax error detected')
-      }
-    }, 1500)
-  }
-
-  const handleLanguageChange = (newLang) => {
+  const handleLanguageChange = (e) => {
+    const newLang = languages.find(l => l.id === e.target.value)
     setLanguage(newLang)
-    setCode(languageTemplates[newLang].starter)
+    setCode(newLang.template)
     setOutput('')
     setShowTerminal(false)
   }
 
+  const handleThemeChange = (e) => {
+    const newTheme = themes.find(t => t.id === e.target.value)
+    setTheme(newTheme)
+  }
+
+  const handleRun = () => {
+    setIsRunning(true)
+    setShowTerminal(true)
+    
+    setTimeout(() => {
+      if (code.includes('print') || code.includes('console.log') || code.includes('System.out') || code.includes('cout') || code.includes('printf')) {
+        setOutput(`✓ Code executed successfully!\n\nOutput:\nHello DevSarthi\n\nExecution time: 0.${Math.floor(Math.random() * 900 + 100)}s`)
+      } else {
+        setOutput(`✓ Code executed successfully!\n\nNo output to display.\n\nExecution time: 0.${Math.floor(Math.random() * 900 + 100)}s`)
+      }
+      setIsRunning(false)
+    }, 1500)
+  }
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code)
+    alert('Code copied to clipboard!')
+  }
+
   const handleReset = () => {
-    setCode(languageTemplates[language].starter)
+    setCode(language.template)
     setOutput('')
     setShowTerminal(false)
   }
 
   const handleDownload = () => {
+    const extensions = { python: 'py', javascript: 'js', java: 'java', cpp: 'cpp', c: 'c' }
     const blob = new Blob([code], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `code${languageTemplates[language].extension}`
+    a.download = `code.${extensions[language.id]}`
     a.click()
   }
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(code)
-    alert('Code copied to clipboard!')
-  }
+  const lineCount = code.split('\n').length
 
   return (
-    <div className="h-full flex flex-col card editor-container">
+    <div className="h-full flex flex-col card overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-3" style={{borderBottom: '1px solid var(--border-light)'}}>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Code className="w-5 h-5" style={{color: 'var(--brand-blue)'}} />
-            <span className="font-bold" style={{color: 'var(--text-dark)'}}>Code Editor</span>
+      <div className="p-4 flex items-center justify-between" style={{borderBottom: '1px solid var(--border-light)'}}>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-gradient rounded-lg flex items-center justify-center">
+            <span className="text-white text-sm font-bold">{'</>'}</span>
           </div>
-          
-          {/* Language Selector */}
-          <select 
-            value={language}
-            onChange={(e) => handleLanguageChange(e.target.value)}
-            className="px-3 py-1.5 text-sm rounded-lg cursor-pointer"
-          >
-            <option value="python">🐍 Python</option>
-            <option value="javascript">⚡ JavaScript</option>
-            <option value="java">☕ Java</option>
-            <option value="cpp">⚙️ C++</option>
-            <option value="c">📘 C</option>
-          </select>
+          <div>
+            <h3 className="font-bold" style={{color: 'var(--text-dark)'}}>Code Editor</h3>
+            <div className="text-xs" style={{color: 'var(--text-secondary)'}}>{lineCount} lines</div>
+          </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Language Selector */}
         <div className="flex items-center gap-2">
-          <button 
-            onClick={copyCode}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
-            title="Copy code"
+          <select
+            value={language.id}
+            onChange={handleLanguageChange}
+            className="px-3 py-2 text-sm rounded-lg cursor-pointer"
+            style={{
+              background: 'var(--bg-canvas)',
+              border: '1px solid var(--border-light)',
+              color: 'var(--text-primary)'
+            }}
           >
-            <Copy className="w-4 h-4" style={{color: 'var(--text-secondary)'}} />
-          </button>
-          <button 
-            onClick={handleReset}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
-            title="Reset code"
-          >
-            <RotateCcw className="w-4 h-4" style={{color: 'var(--text-secondary)'}} />
-          </button>
-          <button 
-            onClick={handleDownload}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
-            title="Download code"
-          >
-            <Download className="w-4 h-4" style={{color: 'var(--text-secondary)'}} />
-          </button>
-          <div className="w-px h-6" style={{background: 'var(--border-medium)'}}></div>
-          <button 
-            onClick={handleRun}
-            disabled={isRunning}
-            className="btn-success flex items-center gap-2"
-          >
-            <Play className="w-4 h-4" />
-            <span>{isRunning ? 'Running...' : 'Run Code'}</span>
-          </button>
+            {languages.map(lang => (
+              <option key={lang.id} value={lang.id}>{lang.name}</option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* Editor Toolbar */}
-      <div className="flex items-center gap-2 px-3 py-2" style={{
-        background: 'var(--bg-canvas)',
-        borderBottom: '1px solid var(--border-light)'
-      }}>
-        <span className="text-xs" style={{color: 'var(--text-secondary)'}}>Theme:</span>
-        <select 
-          value={theme}
-          onChange={(e) => setTheme(e.target.value)}
-          className="px-2 py-1 rounded text-xs cursor-pointer"
-        >
-          <option value="vs-light">Light</option>
-          <option value="vs-dark">Dark</option>
-          <option value="hc-black">High Contrast</option>
-        </select>
-        
-        <div className="flex-1"></div>
-        
-        <span className="text-xs" style={{color: 'var(--text-secondary)'}}>
-          {code.split('\n').length} lines
-        </span>
+      {/* Toolbar */}
+      <div className="px-4 py-2 flex items-center justify-between" style={{background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-light)'}}>
+        <div className="flex items-center gap-2">
+          <button onClick={handleCopy} className="p-2 rounded-lg hover:bg-white transition" title="Copy code">
+            <Copy className="w-4 h-4" style={{color: 'var(--text-secondary)'}} />
+          </button>
+          <button onClick={handleReset} className="p-2 rounded-lg hover:bg-white transition" title="Reset code">
+            <RotateCcw className="w-4 h-4" style={{color: 'var(--text-secondary)'}} />
+          </button>
+          <button onClick={handleDownload} className="p-2 rounded-lg hover:bg-white transition" title="Download code">
+            <Download className="w-4 h-4" style={{color: 'var(--text-secondary)'}} />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Theme Selector */}
+          <select
+            value={theme.id}
+            onChange={handleThemeChange}
+            className="px-3 py-1.5 text-xs rounded-lg cursor-pointer"
+            style={{
+              background: 'white',
+              border: '1px solid var(--border-light)',
+              color: 'var(--text-primary)'
+            }}
+          >
+            {themes.map(t => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
+
+          {/* Run Button */}
+          <button
+            onClick={handleRun}
+            disabled={isRunning}
+            className="btn-success px-4 py-1.5 flex items-center gap-2 text-sm"
+          >
+            <Play className="w-4 h-4" />
+            {isRunning ? 'Running...' : 'Run Code'}
+          </button>
+        </div>
       </div>
 
       {/* Monaco Editor */}
-      <div className="flex-1">
-        <Editor
+      <div className="flex-1 relative">
+        <MonacoEditor
           height="100%"
-          language={language}
+          language={language.id}
+          theme={theme.id}
           value={code}
           onChange={(value) => setCode(value || '')}
-          theme={theme}
           options={{
-            fontSize: 14,
-            fontFamily: "'Fira Code', 'Consolas', 'Monaco', monospace",
             minimap: { enabled: true },
-            scrollBeyondLastLine: false,
-            wordWrap: 'on',
+            fontSize: 14,
             lineNumbers: 'on',
-            renderLineHighlight: 'all',
+            scrollBeyondLastLine: false,
             automaticLayout: true,
             tabSize: 4,
-            insertSpaces: true,
-            cursorBlinking: 'smooth',
-            padding: { top: 16, bottom: 16 },
+            wordWrap: 'on',
+            padding: { top: 16, bottom: 16 }
+          }}
+          onMount={(editor) => {
+            editorRef.current = editor
           }}
         />
       </div>
 
-      {/* Terminal */}
+      {/* Terminal Output */}
       {showTerminal && (
-        <div className="h-48" style={{borderTop: '1px solid var(--border-light)'}}>
-          <div className="flex items-center justify-between px-4 py-2" style={{
-            background: 'var(--bg-canvas)',
-            borderBottom: '1px solid var(--border-light)'
-          }}>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full animate-pulse" style={{background: 'var(--action-success)'}}></div>
-              <span className="text-sm font-bold" style={{color: 'var(--brand-blue)'}}>Terminal Output</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setOutput('')}
-                className="text-xs transition"
-                style={{color: 'var(--text-secondary)'}}
-              >
-                Clear
-              </button>
+        <div 
+          className="border-t transition-all duration-300 overflow-hidden"
+          style={{
+            borderColor: 'var(--border-light)',
+            height: showTerminal ? '200px' : '0px'
+          }}
+        >
+          <div className="h-full flex flex-col" style={{background: '#1e1e1e'}}>
+            <div className="px-4 py-2 flex items-center justify-between" style={{borderBottom: '1px solid #333'}}>
+              <span className="text-xs font-bold" style={{color: '#4EC9B0'}}>Terminal</span>
               <button 
                 onClick={() => setShowTerminal(false)}
-                className="text-xs transition"
-                style={{color: 'var(--text-secondary)'}}
+                className="text-xs px-2 py-1 rounded hover:bg-gray-700"
+                style={{color: '#ccc'}}
               >
-                Close ×
+                Hide
               </button>
             </div>
-          </div>
-          
-          <div className="p-4 h-full overflow-auto">
-            <pre className="text-sm font-mono">
-              {output.includes('error') || output.includes('Error') ? (
-                <span style={{color: 'var(--action-error)'}}>{output}</span>
-              ) : (
-                <span style={{color: 'var(--action-success)'}}>{output}</span>
-              )}
-            </pre>
+            <div className="flex-1 p-4 overflow-auto font-mono text-xs" style={{color: '#d4d4d4'}}>
+              <pre className="whitespace-pre-wrap">{output}</pre>
+            </div>
           </div>
         </div>
       )}

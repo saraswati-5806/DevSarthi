@@ -414,7 +414,7 @@ export default function WorkspacePage() {
   const locale  = params?.locale ?? 'en'
 
   // ── State (mirrors reference code structure exactly) ──────────────────────
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
   const [panels,     setPanels]     = useState({
     aiChat: true, codeEditor: true, resources: false, calculator: false, notes: false,
   })

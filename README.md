@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+🚀 **DevSathi: Vernacular-First AI Tutoring Ecosystem**
 
-First, run the development server:
+Bridging the gap between static technical textbooks and practical coding through a unified, vernacular-first AI tutoring ecosystem.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+DevSathi is a RAG-powered learning platform designed for the Indian student (Bharat). It eliminates the "Language-Logic Gap" by providing localized analogies and a unified workspace that combines resource viewing, AI tutoring, and live coding.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+📌 **Problem Statement**:
+Students in Tier-2 and Tier-3 cities often understand complex technical logic but are hindered by English-heavy documentation and context-switching fatigue (jumping between PDFs, AI chats, and code editors).
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+✨ **Key Features**
+🧠 **Domain-Agnostic RAG**: Upload any PDF (NCERT, University Notes) for document-specific, hallucination-free tutoring. 
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+🗣️ **Vernacular Code-Switching**: AI explains logic in native dialects (Hindi, Tamil, etc.) while keeping technical syntax in English for exam readiness. 
 
-## Learn More
+💻 **3-Column Adaptive Lab**: A unified interface featuring an integrated PDF Viewer, Vernacular AI Chat, and Monaco Code Editor. 
 
-To learn more about Next.js, take a look at the following resources:
+🛡️ **VertiScore Guardrails**: A unique verification layer that ensures all AI responses are 100% factually accurate against the source document.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**🛠️ Technical Ecosystem**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Frontend Interface**
+1. Framework: Next.js 14 (App Router)
+2. Styling: Tailwind CSS
+3. Code Editor: Monaco Editor (The core of VS Code)
 
-## Deploy on Vercel
+**AI & Intelligence Layer**
+1. LLM Reasoning: AWS Bedrock (Claude 3 Haiku)
+2. Vector Embeddings: AWS Titan Text Embeddings
+3. Orchestration: LangChain / Python FastAPI (Serverless)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Data & Infrastructure**
+1. Vector Database: Amazon OpenSearch Serverless
+2. Document Storage: Amazon S3
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**NoSQL Database: Amazon DynamoDB (User progress & logs)**
+
+**🚀 Future Roadmap**
+**Short Term:** Speech-to-Text for hands-free coding and multi-modal support for handwritten diagrams. 
+**Mid Term:** Offline-First PWA for students in low-connectivity rural areas. 
+**Long Term:** Peer-to-Peer Learning Network for quality control of AI-generated vernacular analogies.
+
+**📈 Potential Impact**
+**Inclusivity**: Democratizing high-quality tech education for 1M+ students in Tier-2/3 cities. 
+**Efficiency**: Reducing the "Learning-to-Coding" turnaround time by 40%.
